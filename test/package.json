@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "ffmpeg": "^0.0.4",
+    "obs-websocket-js": "^5.0.6"
+  }
+}

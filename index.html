@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Speech Recognition</title>
+</head>
+<body>
+
+<h2>Real-Time Speech Recognition</h2>
+<button id="startButton">Start Recognition</button>
+<button id="stopButton">Stop Recognition</button>
+<p><strong>Transcription:</strong> <span id="transcript"></span></p>
+
+<script>
+
+	const socket = new WebSocket('ws://localhost:8080');
+	
+    // Check for SpeechRecognition API support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        // Initialize the speech recognition object
+        const recognition = new SpeechRecognition();
+        
+        // Configure recognition settings
+        recognition.continuous = true; // Keeps recognition running
+        recognition.interimResults = true; // Show interim (partial) results
+        recognition.lang = 'pl-PL'; // Set language (you can adjust as needed)
+        
+        // Variables to store results
+        let finalTranscript = '';
+		
+		var finalFlag;
+		
+		var o = [];
+        
+        // Event listener for when speech is recognized
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+			
+			
+			
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript + ' ';
+					finalFlag = true;
+                } else {
+                    interimTranscript += transcript;
+					finalFlag = false;
+                }
+            }
+			// socket.send(finalTranscript + interimTranscript);
+			
+			
+			console.log(finalTranscript + interimTranscript);
+			
+            document.getElementById('transcript').textContent = finalTranscript + interimTranscript;
+			
+			
+			if (finalFlag) {
+				o = [
+					"f", 
+					finalTranscript
+				];
+			} else {
+				o = [
+					"i", 
+					interimTranscript
+				];
+			}
+			
+
+			socket.send(JSON.stringify(o));
+			
+			};
+
+			// Handle errors
+			recognition.onerror = (event) => {
+				console.error('Speech Recognition Error:', event.error);
+			};
+
+			// Handle recognition start and end
+			document.getElementById('startButton').onclick = () => {
+				recognition.start();
+				console.log('Speech recognition started.');
+			};
+			
+			document.getElementById('stopButton').onclick = () => {
+				recognition.stop();
+				console.log('Speech recognition stopped.');
+			};
+		} else {
+			alert('Speech Recognition API is not supported in this browser.');
+		}
+</script>
+
+</body>
+</html>

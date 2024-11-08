@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "nodemon": "^3.1.7",
+    "obs-websocket-js": "^5.0.6",
+    "ws": "^8.18.0"
+  }
+}
